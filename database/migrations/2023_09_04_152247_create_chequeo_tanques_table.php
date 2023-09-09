@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('cab_chequeo_id');
             $table->foreign('cab_chequeo_id')->references('id')->on('cab_chequeos')->onDelete('cascade');
-            $table->integer('num_tanque')->unsigned()->default(0);
+            $table->string('num_tanque',25);
         });
     }
 
