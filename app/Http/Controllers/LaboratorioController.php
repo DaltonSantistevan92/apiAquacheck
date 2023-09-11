@@ -34,7 +34,7 @@ class LaboratorioController extends Controller
                         $nuevoGeoLab->longitud = $dg['lng'];
                         $nuevoGeoLab->save();
                     }
-                    $response = ['status' => true, 'message' => "El laboratorio se registró con éxito"];
+                    $response = ['status' => true, 'message' => "El laboratorio se registró con éxito..!  Por favor registre un Módulo para el laboratorio " . ucwords($laboratorio->nombre) ];
                 }
             } else {
                  $response = [

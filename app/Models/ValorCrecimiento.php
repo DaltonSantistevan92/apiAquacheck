@@ -14,6 +14,6 @@ class ValorCrecimiento extends Model
     public $timestamps = false;
 
     public function estadio_larval_valor(){
-        return $this-> hasMany(EstadioLarvalValor::class);
+        return $this->hasMany(EstadioLarvalValor::class);
     }
 }

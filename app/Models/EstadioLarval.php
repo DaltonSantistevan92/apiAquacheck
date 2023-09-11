@@ -16,6 +16,6 @@ class EstadioLarval extends Model
 
 
     public function estadio_larval_valor(){
-        return $this-> hasMany(EstadioLarvalValor::class);
+        return $this->hasMany(EstadioLarvalValor::class);
     }
 }
