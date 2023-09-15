@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SendForgotPasswordMail;
 use App\Models\User;
 use App\Models\Person;
 use Illuminate\Http\Request;
@@ -311,5 +312,43 @@ class UserController extends Controller
             $response = ['status' => false, 'message' => 'Error del Servidor'];
             return response()->json($response, 500);
         }
+    }
+
+    public function olvidarContrasenaUser(Request $request){
+        try {
+            $requestUser = (object) $request->forgot_password;
+            $response  = [];
+
+            $dataUser = User::where('email',$requestUser->email)->where('status','A')->first();
+
+            if ($dataUser) {
+                //mandar correo con nuevas credenciales
+                $keyCode = $this->generate_key($this->limitePassword); //enviar clave correo
+
+                $encriptarPassword = Hash::make($keyCode);
+
+                $dataUser->password =  $encriptarPassword;
+                $dataUser->save();
+
+                $email = $dataUser->email;
+                $cedula = $dataUser->person->identification;
+                $nombreCompleto = ucwords($dataUser->person->first_name) . ' ' . ucwords($dataUser->person->last_name);
+
+                $this->enviarEmailForgot($email, $cedula, $keyCode, $nombreCompleto); 
+                
+                $response = ['status' => true, 'message' => 'Las Nuevas Credenciales se generaron con éxito... Por favor revise su correo'];
+            } else {
+                $response = ['status' => false, 'message' => 'El correo no existe en nuestro registro'];
+            }
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
+
+    public function enviarEmailForgot($email,$cedula, $password, $name){
+         Mail::to($email)->send(new SendForgotPasswordMail($email, $cedula, $password, $name));
+        return;
     }
 }

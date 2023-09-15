@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('estadio_larvals', function (Blueprint $table) {
+        Schema::create('grupos', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_estadio',25);
-            $table->string('abrv',10);
+            $table->string('nombre_grupo',25)->unique();
             $table->char('status',1)->default('A');
         });
     }
@@ -24,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('estadio_larvals');
+        Schema::dropIfExists('grupos');
     }
 };

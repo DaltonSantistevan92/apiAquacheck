@@ -11,7 +11,7 @@ class EstadioLarval extends Model
 {
     use HasFactory;
     protected $table = 'estadio_larvals';
-    protected $fillable = ['nombre_estadio','status'];
+    protected $fillable = ['nombre_estadio','abrv','status'];
     public $timestamps = false;
 
 

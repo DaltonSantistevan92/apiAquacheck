@@ -40,7 +40,8 @@ class DatabaseSeeder extends Seeder
             AlimentacionSeeder::class,
             DietaSeeder::class,
             LipidoSeeder::class,
-            MusculosSeeder::class
+            MusculosSeeder::class,
+            GrupoSeeder::class
         ]);
     }
 }

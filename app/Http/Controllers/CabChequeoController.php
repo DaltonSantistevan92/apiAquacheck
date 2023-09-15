@@ -12,6 +12,38 @@ use Illuminate\Http\Request;
 
 class CabChequeoController extends Controller
 {
+    // public function validarNumeroChequeo($laboratorio_id, $modulo_id)
+    // {
+    //     try {
+    //         $cab_chequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)->where('modulo_id', $modulo_id)->where('finalizado', 'N')->where('status', 'A')->latest()->first();
+
+    //         if ($cab_chequeo) {
+    //             $chequeo = $cab_chequeo->chequeo;
+
+    //             $detalleChequeo = DetalleChequeo::where('cab_chequeo_id', $cab_chequeo->id)->first();
+    //             $estadio_larval_valor = [];
+
+    //             $estadioLarvalValor = EstadioLarvalValor::find($detalleChequeo->estadio_larval_valor_id);
+
+    //             $aux = [
+    //                 'estadio_larval_valor_id' => $detalleChequeo->estadio_larval_valor_id,
+    //                 'nombre_estadio_valor_crecimiento' => strtoupper($estadioLarvalValor->estadio_larval->abrv) . ' - ' . $detalleChequeo->valor_crecimiento->valor
+    //                 //'nombre_estadio_valor_crecimiento' => ucwords($estadioLarvalValor->estadio_larval->nombre_estadio) . ' ' . $estadioLarvalValor->valor_crecimiento->valor,
+    //             ];
+    //             $estadio_larval_valor[] = (object) $aux;
+
+    //             $response = ['status' => true, 'message' => "si hay datos", 'data' => $chequeo + 1, 'estadio_larval_valor_id' => $estadio_larval_valor];
+
+    //         } else {
+    //             $response = ['status' => false, 'message' => "no existe el laboratorio", 'data' => 1, 'estadio_larval_valor_id' => null];
+    //         }
+    //         return response()->json($response, 200);
+    //     } catch (\Throwable $th) {
+    //         $response = ['status' => false, 'message' => 'Error del Servidor'];
+    //         return response()->json($response, 500);
+    //     }
+    // }
+
     public function validarNumeroChequeo($laboratorio_id, $modulo_id)
     {
         try {
@@ -21,15 +53,24 @@ class CabChequeoController extends Controller
                 $chequeo = $cab_chequeo->chequeo;
 
                 $detalleChequeo = DetalleChequeo::where('cab_chequeo_id', $cab_chequeo->id)->first();
+
                 $estadio_larval_valor = [];
 
-                $estadioLarvalValor = EstadioLarvalValor::find($detalleChequeo->estadio_larval_valor_id);
+                if ($detalleChequeo) {
+                    $estadioLarvalValor = EstadioLarvalValor::find($detalleChequeo->estadio_larval_valor_id);
 
-                $aux = [
-                    'estadio_larval_valor_id' => $detalleChequeo->estadio_larval_valor_id,
-                    'nombre_estadio_valor_crecimiento' => ucwords($estadioLarvalValor->estadio_larval->nombre_estadio) . ' ' . $estadioLarvalValor->valor_crecimiento->valor,
-                ];
-                $estadio_larval_valor[] = (object) $aux;
+                    if ($estadioLarvalValor) {
+                        
+                        $estadio_larval_Abrv = strtoupper($estadioLarvalValor->estadio_larval->abrv) . ' - ' . $estadioLarvalValor->valor_crecimiento->valor;
+                        
+                        $aux = [
+                            'estadio_larval_valor_id' => $detalleChequeo->estadio_larval_valor_id,
+                            'nombre_estadio_valor_crecimiento' => $estadio_larval_Abrv
+                            //'nombre_estadio_valor_crecimiento' => ucwords($estadioLarvalValor->estadio_larval->nombre_estadio) . ' ' . $estadioLarvalValor->valor_crecimiento->valor,
+                        ];
+                        $estadio_larval_valor[] = (object) $aux;
+                    }
+                }
 
                 $response = ['status' => true, 'message' => "si hay datos", 'data' => $chequeo + 1, 'estadio_larval_valor_id' => $estadio_larval_valor];
 
@@ -54,6 +95,7 @@ class CabChequeoController extends Controller
                     $cbch->user->person;
                     $cbch->laboratorio;
                     $cbch->modulo;
+                    $cbch->grupo;
                     $cbch->chequeo_tanque;
                     foreach ($cbch->detalle_chequeo as $detch) {
                         $detch->origen_nauplio;
@@ -117,6 +159,7 @@ class CabChequeoController extends Controller
                     $nuevoCabChequeo->user_id = $requestCabChequeo->user_id;
                     $nuevoCabChequeo->laboratorio_id = $requestCabChequeo->laboratorio_id;
                     $nuevoCabChequeo->modulo_id = $requestCabChequeo->modulo_id;
+                    $nuevoCabChequeo->grupo_id = $requestCabChequeo->grupo_id;
                     $nuevoCabChequeo->cantidad_reservada = $cant_millon;
                     $nuevoCabChequeo->fecha_siembra = $requestCabChequeo->fecha_siembra;
                     $nuevoCabChequeo->maduraciones = $requestCabChequeo->maduraciones;
@@ -227,6 +270,7 @@ class CabChequeoController extends Controller
                         'user.person',
                         'laboratorio',
                         'modulo',
+                        'grupo',
                         'chequeo_tanque',
                         'detalle_chequeo',
                         'detalle_chequeo.origen_nauplio',
@@ -271,6 +315,7 @@ class CabChequeoController extends Controller
                         'user.person',
                         'laboratorio',
                         'modulo',
+                        'grupo',
                         'chequeo_tanque',
                         'detalle_chequeo',
                         'detalle_chequeo.origen_nauplio',

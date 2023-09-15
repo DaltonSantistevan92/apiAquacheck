@@ -46,7 +46,7 @@
 
                         <div class="mt-2 text-sm">
                             <div class="flex justify-center sm:justify-start sm:pt-0">
-                                <p>Aquí tienes tus credenciales de acceso para la Aplicación Móvil - </p>
+                                <p>Nuevas Credenciales de Acceso para la Aplicación Móvil - </p>
                                 <img class="palabra" src="https://firebasestorage.googleapis.com/v0/b/aquacheck-bb7ee.appspot.com/o/palabra-aquacheck.png?alt=media&token=3195c029-7a33-4329-970d-8cd7573d3c03"  alt="Palabra Aquacheck" >
                             </div>
                             <p><strong>Usuario : </strong>   {{ $usuario }}  </p>

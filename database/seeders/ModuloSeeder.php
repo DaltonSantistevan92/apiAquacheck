@@ -14,10 +14,10 @@ class ModuloSeeder extends Seeder
     public function run(): void
     {
         $dataModulo = [
-            ['nombre_modulo' => 'modulo a','status'=> 'A'],
-            ['nombre_modulo' => 'modulo b','status'=> 'A'],
-            ['nombre_modulo' => 'modulo c','status'=> 'A'],
-            ['nombre_modulo' => 'modulo d','status'=> 'A'],
+            ['nombre_modulo' => 'a','status'=> 'A'],
+            ['nombre_modulo' => 'b','status'=> 'A'],
+            ['nombre_modulo' => 'c','status'=> 'A'],
+            ['nombre_modulo' => 'd','status'=> 'A'],
         ];
 
         foreach ($dataModulo as $dm) {

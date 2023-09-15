@@ -17,7 +17,9 @@ class EstadioLarvalValorController extends Controller
                 foreach($estadioLarvalValor as $elv){
                     $aux = [
                         'estadio_larval_valor_id' => $elv->id,
-                        'nombre_estadio_valor_crecimiento' => ucwords($elv->estadio_larval->nombre_estadio) . ' ' . $elv->valor_crecimiento->valor 
+                        'nombre_estadio_valor_crecimiento' => strtoupper($elv->estadio_larval->abrv) . ' - ' . $elv->valor_crecimiento->valor
+                        //'nombre_estadio_valor_crecimiento' => ucwords($elv->estadio_larval->nombre_estadio) . ' ' . $elv->valor_crecimiento->valor 
+
                     ];
                     $data[] = (object)$aux; 
                 }

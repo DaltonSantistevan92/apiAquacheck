@@ -8,6 +8,7 @@ use App\Http\Controllers\CabChequeoController;
 use App\Http\Controllers\DietaController;
 use App\Http\Controllers\EstadioLarvalValorController;
 use App\Http\Controllers\GeolocalizacionLaboratorioController;
+use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\LaboratorioModuloController;
 use App\Http\Controllers\LipidoController;
@@ -40,6 +41,7 @@ use Illuminate\Support\Facades\Route;
 
 //RUTAS PUBLICAS
 Route::post('login',[AuthController::class, 'iniciarSesionCedula']);  //login con cedula y password
+Route::post('olvidarContrasena', [UserController::class, 'olvidarContrasenaUser']);
 
 //RUTAS PROTEGIDAS JWT
 // Grupo de rutas con el prefijo 'usuario'
@@ -83,6 +85,11 @@ Route::prefix('laboratorio_modulo')->middleware('jwt.verify')->group(function ()
     Route::delete('asignacionesEliminar/{laboratorio_modulo_id}', [LaboratorioModuloController::class, 'asignacionesLabModEliminar']);
     Route::get('asignacionListar', [LaboratorioModuloController::class, 'asignacionesListar']);
     Route::get('lugar/{laboratorio_id}/{modulo_id}', [LaboratorioModuloController::class, 'getLugar']);
+});
+
+// Grupo de rutas con el prefijo 'grupo'
+Route::prefix('grupo')->middleware('jwt.verify')->group(function () {
+    Route::get('listar', [GrupoController::class, 'listarGrupo']);
 });
 
 // Grupo de rutas con el prefijo 'origen nauplio'

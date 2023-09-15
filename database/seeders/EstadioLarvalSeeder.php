@@ -14,9 +14,9 @@ class EstadioLarvalSeeder extends Seeder
     public function run(): void
     {
         $dataEstadioLarval = [
-            ['nombre_estadio' => 'zoea','status'=> 'A'],
-            ['nombre_estadio' => 'mysis','status'=> 'A'],
-            ['nombre_estadio' => 'peligramo','status'=> 'A'],
+            ['nombre_estadio' => 'zoea','abrv'=>'zoe','status'=> 'A'],
+            ['nombre_estadio' => 'mysis','abrv'=>'mys','status'=> 'A'],
+            ['nombre_estadio' => 'peligramo','abrv'=>'pl','status'=> 'A'],
         ];
 
         foreach ($dataEstadioLarval as $del) {

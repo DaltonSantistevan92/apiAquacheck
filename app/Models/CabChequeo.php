@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\{User,Laboratorio,ChequeoTanque,Modulo,DetalleChequeo,ParametrosFisicoQuimico,AnalisisMicroscopio};
+use App\Models\{User,Laboratorio,ChequeoTanque,Modulo,Grupo,DetalleChequeo,ParametrosFisicoQuimico,AnalisisMicroscopio};
 
 
 class CabChequeo extends Model
@@ -16,6 +16,7 @@ class CabChequeo extends Model
         'user_id',
         'laboratorio_id',
         'modulo_id',
+        'grupo_id',
         'cantidad_reservada',
         'fecha_siembra',
         'maduraciones',
@@ -37,6 +38,10 @@ class CabChequeo extends Model
 
     public function modulo(){//listo
         return $this->belongsTo(Modulo::class, 'modulo_id');
+    }
+
+    public function grupo(){//listo
+        return $this->belongsTo(Grupo::class, 'grupo_id');
     }
 
     public function chequeo_tanque(){//listo
