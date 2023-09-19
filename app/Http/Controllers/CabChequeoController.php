@@ -340,4 +340,94 @@ class CabChequeoController extends Controller
             return response()->json($response, 500);
         }
     }
+
+    public function finalizarChequeosNoFinalizados($laboratorio_id,$modulo_id,$fecha_siembra)
+    {
+        try {
+            $cabChequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)
+                        ->where('modulo_id', $modulo_id)
+                        ->where(function ($query) use ($fecha_siembra) {
+                            $query->whereDate('fecha_siembra', '=', $fecha_siembra)
+                                  ->orWhere('fecha_siembra', 'like', $fecha_siembra . ' %');
+                        })
+                        ->where('finalizado', 'N')
+                        ->get();
+            $response = [];
+
+            if ($cabChequeo->count() > 0) {
+                foreach ($cabChequeo as $cab) {
+                    $cab->finalizado = 'S';
+                    $cab->save();
+                }
+                $response = ['status' => true, 'message' => "Los Chequeos seleccionados se finalizaron con éxito"];
+            } else {
+                $response = ['status' => false, 'message' => "no hay datos", 'data' => $cabChequeo];
+            }
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
+
+    public function laboratoriosRegistrados($laboratorio_id)
+    {
+        try {
+            $cabChequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)
+                        ->where('finalizado', 'N')
+                        ->get();
+            $response = [];  $dataModulos = [];
+
+            if ($cabChequeo->count() > 0) {
+                foreach ($cabChequeo as $cab) {
+                    $aux = [
+                        'modulo_id' => $cab->modulo->id,
+                        'modulo' => strtoupper($cab->modulo->nombre_modulo)
+                    ];
+                    $dataModulos[] = (object)$aux;
+                }
+                // Eliminar duplicados
+                $dataModulos = collect($dataModulos)->unique('modulo_id')->values()->all();
+
+                $response = ['status' => true, 'message' => "existen datos", 'data' => $dataModulos ];
+            } else {
+                $response = ['status' => false, 'message' => "no hay datos", 'data' => $dataModulos];
+            }
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
+
+    public function fechasSiembrasRegistradas($laboratorio_id,$modulo_id)
+    {
+        try {
+            $cabChequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)
+                        ->where('modulo_id', $modulo_id)
+                        ->where('finalizado', 'N')
+                        ->get();
+            $response = [];  $dataFechas = [];
+
+            if ($cabChequeo->count() > 0) {
+                foreach ($cabChequeo as $cab) {
+                    $dateParts = explode(" - ", $cab->fecha_siembra);
+                    $aux = [
+                        'fecha_siembra' => $dateParts[0]
+                    ];
+                    $dataFechas[] = (object)$aux;
+                }
+                // Eliminar duplicados
+                $dataFechas = collect($dataFechas)->unique('fecha_siembra')->values()->all();
+                
+                $response = ['status' => true, 'message' => "existen datos", 'data' => $dataFechas ];
+            } else {
+                $response = ['status' => false, 'message' => "no hay datos", 'data' => $dataFechas];
+            }
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
 }

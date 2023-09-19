@@ -139,6 +139,9 @@ Route::prefix('chequeo')->middleware('jwt.verify')->group(function () {
     Route::post('guardar', [CabChequeoController::class, 'guardarChequeo']);
     Route::get('consultaChequeo/{user_id}', [CabChequeoController::class, 'consultasChequeos']);
     Route::get('consultaChequeoLaboratorio/{laboratorio_id}', [CabChequeoController::class, 'consultasChequeosPorLaboratorio']);
+    Route::get('finalizarChequeos/{laboratorio_id}/{modulo_id}/{fecha_siembra}', [CabChequeoController::class, 'finalizarChequeosNoFinalizados']);
+    Route::get('laboratoriosModulosRegistrados/{laboratorio_id}', [CabChequeoController::class, 'laboratoriosRegistrados']);
+    Route::get('fechaSiembraRegistradas/{laboratorio_id}/{modulo_id}', [CabChequeoController::class, 'fechasSiembrasRegistradas']);
 });
 
 // Grupo de rutas con el prefijo 'estadio_larval_valor'
