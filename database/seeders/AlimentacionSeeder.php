@@ -14,6 +14,8 @@ class AlimentacionSeeder extends Seeder
     public function run(): void
     {
         $dataAlimentacion = [
+            ['nombre_alimentacion' => 'baja','status'=> 'A'],
+            ['nombre_alimentacion' => 'regular','status'=> 'A'],
             ['nombre_alimentacion' => 'buena','status'=> 'A'],
             ['nombre_alimentacion' => 'excelente','status'=> 'A'],
         ];

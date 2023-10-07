@@ -17,7 +17,8 @@ class DietaSeeder extends Seeder
             ['nombre_dieta' => 'biomar','abrv' => 'bio','status'=> 'A'],
             ['nombre_dieta' => 'inve','abrv' => 'inv','status'=> 'A'],
             ['nombre_dieta' => 'carguil','abrv' => 'car','status'=> 'A'],
-            ['nombre_dieta' => 'epicor','abrv' => 'epi','status'=> 'A'],
+            // ['nombre_dieta' => 'adm / epicore','abrv' => 'epi','status'=> 'A'],
+            ['nombre_dieta' => 'epicore','abrv' => 'epi','status'=> 'A'],
             ['nombre_dieta' => 'varios','abrv' => 'var','status'=> 'A'],
         ];
 

@@ -20,6 +20,7 @@ class GrupoSeeder extends Seeder
             ['nombre_grupo' => 'omarsa','status'=> 'A'],
             ['nombre_grupo' => 'naturisa','status'=> 'A'],
             ['nombre_grupo' => 'pescanova','status'=> 'A'],
+            ['nombre_grupo' => 'p&i bravito','status'=> 'A'],
             ['nombre_grupo' => 'otros','status'=> 'A'],
         ];
 

@@ -9,73 +9,65 @@ use App\Models\DetalleChequeo;
 use App\Models\EstadioLarvalValor;
 use App\Models\ParametrosFisicoQuimico;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CabChequeoController extends Controller
 {
-    // public function validarNumeroChequeo($laboratorio_id, $modulo_id)
-    // {
-    //     try {
-    //         $cab_chequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)->where('modulo_id', $modulo_id)->where('finalizado', 'N')->where('status', 'A')->latest()->first();
-
-    //         if ($cab_chequeo) {
-    //             $chequeo = $cab_chequeo->chequeo;
-
-    //             $detalleChequeo = DetalleChequeo::where('cab_chequeo_id', $cab_chequeo->id)->first();
-    //             $estadio_larval_valor = [];
-
-    //             $estadioLarvalValor = EstadioLarvalValor::find($detalleChequeo->estadio_larval_valor_id);
-
-    //             $aux = [
-    //                 'estadio_larval_valor_id' => $detalleChequeo->estadio_larval_valor_id,
-    //                 'nombre_estadio_valor_crecimiento' => strtoupper($estadioLarvalValor->estadio_larval->abrv) . ' - ' . $detalleChequeo->valor_crecimiento->valor
-    //                 //'nombre_estadio_valor_crecimiento' => ucwords($estadioLarvalValor->estadio_larval->nombre_estadio) . ' ' . $estadioLarvalValor->valor_crecimiento->valor,
-    //             ];
-    //             $estadio_larval_valor[] = (object) $aux;
-
-    //             $response = ['status' => true, 'message' => "si hay datos", 'data' => $chequeo + 1, 'estadio_larval_valor_id' => $estadio_larval_valor];
-
-    //         } else {
-    //             $response = ['status' => false, 'message' => "no existe el laboratorio", 'data' => 1, 'estadio_larval_valor_id' => null];
-    //         }
-    //         return response()->json($response, 200);
-    //     } catch (\Throwable $th) {
-    //         $response = ['status' => false, 'message' => 'Error del Servidor'];
-    //         return response()->json($response, 500);
-    //     }
-    // }
-
-    public function validarNumeroChequeo($laboratorio_id, $modulo_id)
+    public function validarNumeroChequeoAnterior($laboratorio_id, $modulo_id)
     {
         try {
-            $cab_chequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)->where('modulo_id', $modulo_id)->where('finalizado', 'N')->where('status', 'A')->latest()->first();
+            $cab_chequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)
+                                    ->where('modulo_id', $modulo_id)
+                                    ->where('finalizado', 'N')
+                                    ->where('status', 'A')
+                                    ->get();
 
-            if ($cab_chequeo) {
-                $chequeo = $cab_chequeo->chequeo;
+            if ($cab_chequeo->count() > 0) {
+                $ultimoCabecera = collect($cab_chequeo)->last();
+                $chequeo = $ultimoCabecera->chequeo;
 
-                $detalleChequeo = DetalleChequeo::where('cab_chequeo_id', $cab_chequeo->id)->first();
-
-                $estadio_larval_valor = [];
-
-                if ($detalleChequeo) {
-                    $estadioLarvalValor = EstadioLarvalValor::find($detalleChequeo->estadio_larval_valor_id);
-
-                    if ($estadioLarvalValor) {
-                        
-                        $estadio_larval_Abrv = strtoupper($estadioLarvalValor->estadio_larval->abrv) . ' - ' . $estadioLarvalValor->valor_crecimiento->valor;
-                        
-                        $aux = [
-                            'estadio_larval_valor_id' => $detalleChequeo->estadio_larval_valor_id,
-                            'nombre_estadio_valor_crecimiento' => $estadio_larval_Abrv
-                            //'nombre_estadio_valor_crecimiento' => ucwords($estadioLarvalValor->estadio_larval->nombre_estadio) . ' ' . $estadioLarvalValor->valor_crecimiento->valor,
-                        ];
-                        $estadio_larval_valor[] = (object) $aux;
-                    }
-                }
-
-                $response = ['status' => true, 'message' => "si hay datos", 'data' => $chequeo + 1, 'estadio_larval_valor_id' => $estadio_larval_valor];
-
+                $auxCabeceraFechasSiembra = [
+                    'cab_chequeo_id' => $ultimoCabecera->id,
+                    'fecha_siembra_first' => $ultimoCabecera->fecha_siembra_first,
+                    'fecha_siembra_second' => $ultimoCabecera->fecha_siembra_second,
+                    'fecha_siembra_third' => $ultimoCabecera->fecha_siembra_third,
+                ];
+               
+                $response = ['status' => true, 'message' => "si hay datos", 'data' => $chequeo + 1, 'ultimo' => $auxCabeceraFechasSiembra];
             } else {
-                $response = ['status' => false, 'message' => "no existe el laboratorio", 'data' => 1, 'estadio_larval_valor_id' => null];
+                $response = ['status' => false, 'message' => "no existe el laboratorio", 'data' => 1];
+            }
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
+
+    public function validarNumeroChequeo($laboratorio_id, $modulo_id, $grupo_id)
+    {
+        try {
+            $cab_chequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)
+                                    ->where('modulo_id', $modulo_id)
+                                    ->where('grupo_id', $grupo_id)
+                                    ->where('finalizado', 'N')
+                                    ->where('status', 'A')
+                                    ->get();
+
+            if ($cab_chequeo->count() > 0) {
+                $ultimoCabecera = collect($cab_chequeo)->last();
+                $chequeo = $ultimoCabecera->chequeo;
+
+                $auxCabeceraFechasSiembra = [
+                    'cab_chequeo_id' => $ultimoCabecera->id,
+                    'fecha_siembra_first' => $ultimoCabecera->fecha_siembra_first,
+                    'fecha_siembra_second' => $ultimoCabecera->fecha_siembra_second,
+                    'fecha_siembra_third' => $ultimoCabecera->fecha_siembra_third,
+                ];
+               
+                $response = ['status' => true, 'message' => "si hay datos", 'data' => $chequeo + 1, 'ultimo' => $auxCabeceraFechasSiembra];
+            } else {
+                $response = ['status' => false, 'message' => "no existe el laboratorio, ni modulo , ni grupo", 'data' => 1];
             }
             return response()->json($response, 200);
         } catch (\Throwable $th) {
@@ -102,7 +94,6 @@ class CabChequeoController extends Controller
                         $detch->actividad;
                         $detch->estadio_larval_valor->estadio_larval;
                         $detch->estadio_larval_valor->valor_crecimiento;
-                        $detch->branquia;
                         $detch->medios_cultivo;
                     }
                     $cbch->parametro_fisico_quimico;
@@ -134,7 +125,7 @@ class CabChequeoController extends Controller
         return number_format($transformedValue, 0, '.', '.'); // Formatear sin decimales y con punto como separador de miles
     }
 
-    public function guardarChequeo(Request $request)
+    public function guardarChequeo(Request $request)//verificado
     {
         /* try { */
             $dataChequeo = (object) $request->data;
@@ -149,8 +140,23 @@ class CabChequeoController extends Controller
 
                 $cant_millon = $this->transformToMillions(doubleval($requestCabChequeo->cantidad_reservada));
 
+                // // Dividir la cadena en un array utilizando el carácter "-" como separador
+                // $fechas = explode(" - ", $requestCabChequeo->fecha_siembra);
 
-                $existeChequeo = CabChequeo::where('chequeo',$requestCabChequeo->chequeo)->where('laboratorio_id',$requestCabChequeo->laboratorio_id)->where('modulo_id',$requestCabChequeo->modulo_id) ->first();
+                // // Obtener la primera fecha
+                // $fechaSiembraFirst = $fechas[0];
+
+                $existeChequeo = CabChequeo::where('laboratorio_id',$requestCabChequeo->laboratorio_id)
+                                            ->where('modulo_id',$requestCabChequeo->modulo_id)
+                                            ->where('grupo_id',$requestCabChequeo->grupo_id)
+                                            ->where('chequeo',$requestCabChequeo->chequeo)
+                                            ->where('finalizado','N')
+                                            ->where('fecha', date('Y-m-d'))
+                                            // ->where(function ($query) use ($fechaSiembraFirst) {
+                                            //     $query->whereDate('fecha_siembra', '=', $fechaSiembraFirst)
+                                            //           ->orWhere('fecha_siembra', 'like', $fechaSiembraFirst . ' %');
+                                            // })
+                                            ->first();
 
                 if ($existeChequeo) {
                     $response = ['status' => false, 'message' => "El chequeo ya se encuentra registrado"];
@@ -161,7 +167,10 @@ class CabChequeoController extends Controller
                     $nuevoCabChequeo->modulo_id = $requestCabChequeo->modulo_id;
                     $nuevoCabChequeo->grupo_id = $requestCabChequeo->grupo_id;
                     $nuevoCabChequeo->cantidad_reservada = $cant_millon;
-                    $nuevoCabChequeo->fecha_siembra = $requestCabChequeo->fecha_siembra;
+                    // $nuevoCabChequeo->fecha_siembra = $requestCabChequeo->fecha_siembra;
+                    $nuevoCabChequeo->fecha_siembra_first = $requestCabChequeo->fecha_siembra_first;
+                    $nuevoCabChequeo->fecha_siembra_second = $requestCabChequeo->fecha_siembra_second;
+                    $nuevoCabChequeo->fecha_siembra_third = $requestCabChequeo->fecha_siembra_third;
                     $nuevoCabChequeo->maduraciones = $requestCabChequeo->maduraciones;
                     $nuevoCabChequeo->chequeo = $requestCabChequeo->chequeo;
                     $nuevoCabChequeo->observacion_recomendacion = $requestCabChequeo->observacion_recomendacion;
@@ -194,10 +203,10 @@ class CabChequeoController extends Controller
                             $nuevoDetalle->poblacion_actual = $this->transformToMillions(doubleval($detalle['poblacion_actual']));
                             $nuevoDetalle->larvas_por_litros = $detalle['larvas_por_litros'];
                             $nuevoDetalle->dias_de_cultivo = $detalle['dias_de_cultivo'];
-                            $nuevoDetalle->dias_de_post_larva = $detalle['dias_de_post_larva'];
                             $nuevoDetalle->estadio_larval_valor_id = $detalle['estadio_larval_valor_id'];
-                            $nuevoDetalle->branquia_id = $detalle['branquia_id'];
+                            $nuevoDetalle->dias_de_post_larva = $detalle['dias_de_post_larva'];
                             $nuevoDetalle->pl_gr = $detalle['pl_gr'];
+                            $nuevoDetalle->uniformidad = $detalle['uniformidad'];
                             $nuevoDetalle->larvas_azuladas = $detalle['larvas_azuladas'];
                             $nuevoDetalle->bact_luminiscente = $detalle['bact_luminiscente'];
                             $nuevoDetalle->medios_cultivo_id = $detalle['medios_cultivo_id'];
@@ -209,8 +218,8 @@ class CabChequeoController extends Controller
                             $nuevoDetalleFq = new ParametrosFisicoQuimico();
                             // $nuevoDetalleFq->chequeo_tanque_id = $newChequeoTanque->id;
                             $nuevoDetalleFq->cab_chequeo_id = $nuevoCabChequeo->id;
-                            $nuevoDetalleFq->temperatura = $fiscoQuimico['temperatura'];
                             $nuevoDetalleFq->salinidad = $fiscoQuimico['salinidad'];
+                            $nuevoDetalleFq->temperatura = $fiscoQuimico['temperatura'];
                             $nuevoDetalleFq->alcalinidad = $fiscoQuimico['alcalinidad'];
                             $nuevoDetalleFq->ph = $fiscoQuimico['ph'];
                             $nuevoDetalleFq->save();
@@ -251,6 +260,7 @@ class CabChequeoController extends Controller
         } */
     }
 
+
     public function consultasChequeos($user_id)
     {
         try {
@@ -277,7 +287,7 @@ class CabChequeoController extends Controller
                         'detalle_chequeo.actividad',
                         'detalle_chequeo.estadio_larval_valor.estadio_larval',
                         'detalle_chequeo.estadio_larval_valor.valor_crecimiento',
-                        'detalle_chequeo.branquia',
+                        // 'detalle_chequeo.branquia',
                         'detalle_chequeo.medios_cultivo',
                         'parametro_fisico_quimico',
                         'analisis_microscopio.dieta',
@@ -322,7 +332,7 @@ class CabChequeoController extends Controller
                         'detalle_chequeo.actividad',
                         'detalle_chequeo.estadio_larval_valor.estadio_larval',
                         'detalle_chequeo.estadio_larval_valor.valor_crecimiento',
-                        'detalle_chequeo.branquia',
+                        // 'detalle_chequeo.branquia',
                         'detalle_chequeo.medios_cultivo',
                         'parametro_fisico_quimico',
                         'analisis_microscopio.dieta',
@@ -341,14 +351,14 @@ class CabChequeoController extends Controller
         }
     }
 
-    public function finalizarChequeosNoFinalizados($laboratorio_id,$modulo_id,$fecha_siembra)
+    public function finalizarChequeosNoFinalizados2($laboratorio_id,$modulo_id,$fecha_siembra)//anterior
     {
         try {
             $cabChequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)
                         ->where('modulo_id', $modulo_id)
                         ->where(function ($query) use ($fecha_siembra) {
-                            $query->whereDate('fecha_siembra', '=', $fecha_siembra)
-                                  ->orWhere('fecha_siembra', 'like', $fecha_siembra . ' %');
+                            $query->whereDate('fecha_siembra_first', '=', $fecha_siembra)
+                                  ->orWhere('fecha_siembra_first', 'like', $fecha_siembra . ' %');
                         })
                         ->where('finalizado', 'N')
                         ->get();
@@ -359,6 +369,56 @@ class CabChequeoController extends Controller
                     $cab->finalizado = 'S';
                     $cab->save();
                 }
+                $response = ['status' => true, 'message' => "Los Chequeos seleccionados se finalizaron con éxito"];
+            } else {
+                $response = ['status' => false, 'message' => "no hay datos", 'data' => $cabChequeo];
+            }
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
+
+    public function finalizarChequeosNoFinalizados($laboratorio_id,$modulo_id,$grupo_id,$fecha_siembra)
+    {
+        try {
+            $cabChequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)
+                        ->where('modulo_id', $modulo_id)
+                        ->where('grupo_id', $grupo_id)
+                        ->where(function ($query) use ($fecha_siembra) {
+                            $query->whereDate('fecha_siembra_first', '=', $fecha_siembra)
+                                  ->orWhere('fecha_siembra_first', 'like', $fecha_siembra . ' %');
+                        })
+                        ->where('finalizado', 'N')
+                        ->get();
+            $response = [];
+
+            if ($cabChequeo->count() > 0) {
+                $existeCabChequeoRegistrados = CabChequeo::where('laboratorio_id', $laboratorio_id)
+                                                    ->where('modulo_id', $modulo_id)
+                                                    ->where('grupo_id', $grupo_id)
+                                                    ->where('finalizado', 'S')
+                                                    ->get();
+          
+                if ($existeCabChequeoRegistrados->count() > 0) {
+                    $ultimoCabeceraChequeo = collect($existeCabChequeoRegistrados)->last();
+                    $ultimoCorrida = $ultimoCabeceraChequeo->corrida;
+                  
+                    foreach($cabChequeo as $cab){
+                        $cab->finalizado = 'S';
+                        $cab->corrida = $ultimoCorrida + 1;
+                        $cab->save();
+                    }
+                } else {//el primer registro
+                    $i = 1;
+                    foreach ($cabChequeo as $cab) {
+                        $cab->finalizado = 'S';
+                        $cab->corrida = $i;       
+                        $cab->save();
+                    }
+                }
+
                 $response = ['status' => true, 'message' => "Los Chequeos seleccionados se finalizaron con éxito"];
             } else {
                 $response = ['status' => false, 'message' => "no hay datos", 'data' => $cabChequeo];
@@ -400,25 +460,58 @@ class CabChequeoController extends Controller
         }
     }
 
-    public function fechasSiembrasRegistradas($laboratorio_id,$modulo_id)
+    public function gruposRegistrados($laboratorio_id,$modulo_id)
     {
         try {
             $cabChequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)
                         ->where('modulo_id', $modulo_id)
                         ->where('finalizado', 'N')
                         ->get();
+            $response = [];  $dataGrupo = [];
+
+            if ($cabChequeo->count() > 0) {
+                foreach ($cabChequeo as $cab) {
+                    $aux = [
+                        'grupo_id' => $cab->grupo_id,
+                        'nombre_grupo' => strtoupper($cab->grupo->nombre_grupo),
+                    ];
+                    $dataGrupo[] = (object)$aux;
+                }
+                // Eliminar duplicados
+                $dataGrupo = collect($dataGrupo)->unique('grupo_id')->values()->all();
+                
+                $response = ['status' => true, 'message' => "existen datos", 'data' => $dataGrupo ];
+            } else {
+                $response = ['status' => false, 'message' => "no hay datos", 'data' => $dataGrupo];
+            }
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
+
+
+    public function fechasSiembrasRegistradas($laboratorio_id,$modulo_id,$grupo_id)//verificado
+    {
+        try {
+            $cabChequeo = CabChequeo::where('laboratorio_id', $laboratorio_id)
+                        ->where('modulo_id', $modulo_id)
+                        ->where('grupo_id',$grupo_id)
+                        ->where('finalizado', 'N')
+                        ->get();
+
             $response = [];  $dataFechas = [];
 
             if ($cabChequeo->count() > 0) {
                 foreach ($cabChequeo as $cab) {
-                    $dateParts = explode(" - ", $cab->fecha_siembra);
                     $aux = [
-                        'fecha_siembra' => $dateParts[0]
+                        'fecha_siembra_first' => $cab->fecha_siembra_first
                     ];
                     $dataFechas[] = (object)$aux;
                 }
                 // Eliminar duplicados
-                $dataFechas = collect($dataFechas)->unique('fecha_siembra')->values()->all();
+                $dataFechas = collect($dataFechas)->unique('fecha_siembra_first')->values()->all();
                 
                 $response = ['status' => true, 'message' => "existen datos", 'data' => $dataFechas ];
             } else {
@@ -430,4 +523,168 @@ class CabChequeoController extends Controller
             return response()->json($response, 500);
         }
     }
+
+    public function laboratoriosFinalizadosEnS()
+    {
+        try {
+            $cabChequeo = CabChequeo::where('finalizado', 'S')->where('status','A')->get();
+            $response = [];  $dataLab = [];
+
+            if ($cabChequeo->count() > 0) {
+                foreach ($cabChequeo as $lab) {
+                    $aux = [
+                        'laboratorio_id' => $lab->laboratorio->id,
+                        'laboratorio' => ucwords($lab->laboratorio->nombre)
+                    ];
+                    $dataLab[] = (object)$aux;
+                }
+                // Eliminar duplicados
+                $dataLab = collect($dataLab)->unique('laboratorio_id')->values()->all();
+
+                $response = ['status' => true, 'message' => "existen datos", 'data' => $dataLab ];
+            } else {
+                $response = ['status' => false, 'message' => "no hay datos", 'data' => $dataLab];
+            }
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
+
+    public function modulosFinalizadosEnS($laboratorio_id)
+    {
+        try {
+            $cabChequeo = CabChequeo::where('laboratorio_id',$laboratorio_id)->where('finalizado', 'S')->where('status','A')->get();
+            $response = [];  $dataMod = [];
+
+            if ($cabChequeo->count() > 0) {
+                foreach ($cabChequeo as $mod) {
+                    $aux = [
+                        'modulo_id' => $mod->modulo->id,
+                        'modulo' => ucwords($mod->modulo->nombre_modulo)
+                    ];
+                    $dataMod[] = (object)$aux;
+                }
+                // Eliminar duplicados
+                $dataMod = collect($dataMod)->unique('modulo_id')->values()->all();
+
+                $response = ['status' => true, 'message' => "existen datos", 'data' => $dataMod ];
+            } else {
+                $response = ['status' => false, 'message' => "no hay datos", 'data' => $dataMod];
+            }
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
+
+    public function existeCorrida($laboratorio_id,$modulo_id)
+    {
+        try {
+            $cabChequeo = CabChequeo::where('laboratorio_id',$laboratorio_id)->where('modulo_id',$modulo_id)->where('finalizado', 'S')->where('status','A')->get();
+            $response = [];  $dataCorrida = [];
+
+            if ($cabChequeo->count() > 0) {
+                foreach ($cabChequeo as $corr) {
+                    $aux = [
+                        'corrida' => $corr->corrida,
+                    ];
+                    $dataCorrida[] = (object)$aux;
+                }
+                // Eliminar duplicados
+                $dataCorrida = collect($dataCorrida)->unique('corrida')->values()->all();
+
+                $response = ['status' => true, 'message' => "existen datos", 'data' => $dataCorrida ];
+            } else {
+                $response = ['status' => false, 'message' => "no hay datos", 'data' => $dataCorrida];
+            }
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
+
+    public function fechasCorrida($laboratorio_id,$modulo_id,$corrida)
+    {
+        try {
+            $cabChequeo = CabChequeo::where('laboratorio_id',$laboratorio_id)
+                                    ->where('modulo_id',$modulo_id)
+                                    ->where('finalizado', 'S')
+                                    ->where('corrida',$corrida)
+                                    ->where('status','A')
+                                    ->get();
+            $response = [];  $dataFechas = [];
+
+            if ($cabChequeo->count() > 0) {
+                foreach ($cabChequeo as $fecha) {
+                    $aux = [
+                        'fecha_siembra_first' => $fecha->fecha_siembra_first,
+                    ];
+                    $dataFechas[] = (object)$aux;
+                }
+                // Eliminar duplicados
+                $dataFechas = collect($dataFechas)->unique('fecha_siembra_first')->values()->all();
+
+                $response = ['status' => true, 'message' => "existen datos", 'data' => $dataFechas ];
+            } else {
+                $response = ['status' => false, 'message' => "no hay datos", 'data' => $dataFechas];
+            }
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
+
+    public function consultaPorCorrida($laboratorio_id,$modulo_id,$corrida,$fecha_siembra_first)
+    {
+        try {
+            $cabChequeo = CabChequeo::where('laboratorio_id',$laboratorio_id)
+                                    ->where('modulo_id',$modulo_id)
+                                    ->where('fecha_siembra_first',$fecha_siembra_first)
+                                    ->where('finalizado', 'S')
+                                    ->where('corrida',$corrida)
+                                    ->where('status','A')
+                                    ->get();
+            $response = [];
+
+            if ($cabChequeo->count() > 0) {
+                foreach ($cabChequeo as $cbch) {
+                    $cbch->user->person;
+                    $cbch->laboratorio;
+                    $cbch->modulo;
+                    $cbch->grupo;
+                    $cbch->chequeo_tanque;
+                    foreach ($cbch->detalle_chequeo as $detch) {
+                        $detch->origen_nauplio;
+                        $detch->actividad;
+                        $detch->estadio_larval_valor->estadio_larval;
+                        $detch->estadio_larval_valor->valor_crecimiento;
+                        // $detch->branquia;
+                        $detch->medios_cultivo;
+                    }
+                    $cbch->parametro_fisico_quimico;
+                    foreach ($cbch->analisis_microscopio as $ana) {
+                        $ana->dieta;
+                        $ana->alimentacion;
+                        $ana->lipido;
+                        $ana->musculo;
+                    }
+                }
+
+                $response = ['status' => true, 'message' => "existen datos", 'data' => $cabChequeo ];
+            } else {
+                $response = ['status' => false, 'message' => "no hay datos", 'data' => $cabChequeo];
+            }
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
+
+
 }

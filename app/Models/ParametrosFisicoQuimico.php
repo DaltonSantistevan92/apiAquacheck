@@ -11,7 +11,7 @@ class ParametrosFisicoQuimico extends Model
 {
     use HasFactory;
     protected $table = 'parametros_fisico_quimicos';
-    protected $fillable = ['cab_chequeo_id','temperatura','salinidad','alcalinidad','ph'];
+    protected $fillable = ['cab_chequeo_id','salinidad','temperatura','alcalinidad','ph'];
     public $timestamps = false;
 
     public function cab_chequeo(){

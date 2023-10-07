@@ -3,16 +3,85 @@
 namespace App\Http\Controllers;
 
 use App\Mail\SendForgotPasswordMail;
-use App\Models\User;
-use App\Models\Person;
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\{Hash,Validator,Storage, Mail};
 use App\Mail\SendPasswordUserMail;
+use App\Models\Person;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+
+use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
 
 class UserController extends Controller
 {
+
     private $limitePassword = 10;
+
+    private $permisoCtrl;
+
+
+    public function __construct()
+    {
+        $this->permisoCtrl = new PermisoController();
+    }
+
+    public function updateImagen(Request $request)
+    {
+        try {
+            $userRequest = (object) $request;
+            $userDefault = 'user-default.jpg';
+            $chequeadorDefault = 'chequeador-default.jpeg';
+            $response = [];
+
+            $user = User::find($userRequest->user_id);
+
+            if ($userRequest) {
+                if ($user) {
+                    $user->role;   $user->person->sexo;
+
+                   
+
+                    $imagenAnterior = $user->image; // Guarda la imagen anterior para su posterior eliminación
+
+                    // Verifica si la nueva imagen es diferente de la imagen anterior
+                    if ($userRequest->image != $imagenAnterior) {
+                        // Verifica si la imagen anterior es diferente de las imágenes predeterminadas
+                        if ($imagenAnterior != $userDefault && $imagenAnterior != $chequeadorDefault) {
+                            // Eliminar la imagen anterior del disco 'usuarios'
+                            Storage::disk('usuarios')->delete($imagenAnterior);
+                        }
+
+                        // Verifica si la nueva imagen es diferente de las imágenes predeterminadas
+                        if ($userRequest->image != $userDefault && $userRequest->image != $chequeadorDefault) {
+                            $user->image = $userRequest->image;
+                        } else {
+                            $user->image = $userRequest->image;
+                        }
+                    }
+                    $user->save();
+
+                     //recupero los menus de cada rol
+                    $menu = $this->permisoCtrl->permisos($user->role->id);
+
+                    $payload = ['user' => $user, 'menu' => $menu];
+                    $token = JWTAuth::customClaims($payload)->fromUser($user);
+                    
+                    $response = ['status' => true, 'message' => "La Imagen del Usuario se actualizo con éxito", 'token' => $token ];
+                } else {
+                    $response = ['status' => false, 'message' => 'No existe el usuario'];
+                }
+            } else {
+                $response = ['status' => false, 'message' => 'No existen datos'];
+            }
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            $response = ['status' => false, 'message' => 'Error del Servidor'];
+            return response()->json($response, 500);
+        }
+    }
 
     public function listarUsuarios()
     {
@@ -101,7 +170,8 @@ class UserController extends Controller
         }
     }
 
-    public function enviarEmail($email, $usuario, $password, $name){
+    public function enviarEmail($email, $usuario, $password, $name)
+    {
         Mail::to($email)->send(new SendPasswordUserMail($email, $usuario, $password, $name));
         return;
     }
@@ -174,11 +244,11 @@ class UserController extends Controller
 
             if ($existingUser) {
                 return $response = ['status' => false, 'message' => "El correo electrónico ya está registrado en otro usuario"];
-                //return response()->json($response, 200); 
+                //return response()->json($response, 200);
             }
 
             $usuario = User::find($requestUser['user_id']);
-            
+
             if ($usuario) {
                 $persona_id = intval($usuario->person->id);
 
@@ -188,7 +258,7 @@ class UserController extends Controller
 
                 $usuario->email = $requestUser['email'];
 
-                 // Verifica si la nueva imagen es diferente de la imagen anterior
+                // Verifica si la nueva imagen es diferente de la imagen anterior
                 if ($requestUser['image'] != $imagenAnterior) {
 
                     // Verifica si la imagen anterior es diferente de las imágenes predeterminadas
@@ -203,8 +273,8 @@ class UserController extends Controller
                     } else {
                         $usuario->image = $requestUser['image'];
                     }
-                } 
-            
+                }
+
                 $persona = Person::find($persona_id);
                 $persona->sexo_id = $requestPerson['sexo_id'];
                 $persona->first_name = $requestPerson['first_name'];
@@ -219,7 +289,7 @@ class UserController extends Controller
             } else {
                 $response = ['status' => false, 'message' => "El usuario no existe"];
             }
-            return response()->json($response, 200);  
+            return response()->json($response, 200);
         } catch (\Throwable $th) {
             $response = ['status' => false, 'message' => 'Error del Servidor'];
             return response()->json($response, 500);
@@ -259,7 +329,8 @@ class UserController extends Controller
     {
         try {
             $chequeadorRol = 2;
-            $chequeadores = User::where('role_id',$chequeadorRol)->where('status','A')->get();
+            $administradorChequeador = 3;
+            $chequeadores = User::where('role_id', $chequeadorRol)->orWhere('role_id', $administradorChequeador)->where('status', 'A')->get();
             $response = [];
             $chequeador = [];
 
@@ -268,9 +339,9 @@ class UserController extends Controller
                 foreach ($chequeadores as $u) {
                     $aux = [
                         'user_id' => $u->id,
-                        'chequeador' => ucwords($u->person->first_name) . ' ' . ucwords($u->person->last_name) 
+                        'chequeador' => ucwords($u->person->first_name) . ' ' . ucwords($u->person->last_name),
                     ];
-                    $chequeador[] = (object)$aux; 
+                    $chequeador[] = (object) $aux;
                 }
 
                 $response = ['status' => true, 'message' => 'Existen datos', 'data' => $chequeador];
@@ -284,42 +355,44 @@ class UserController extends Controller
         }
     }
 
-    public function cambiarContrasenaUser(Request $request){
+    public function cambiarContrasenaUser(Request $request)
+    {
         try {
             $requestUser = (object) $request->update_password;
-            $response  = [];
+            $response = [];
 
             if ($requestUser) {
                 $dataUser = User::find($requestUser->user_id);
-                
+
                 if ($dataUser) {
                     if ($dataUser->status == 'A' && $dataUser->email === $requestUser->email) {
                         $encriptarPassword = Hash::make($requestUser->password);
 
                         $dataUser->password = $encriptarPassword;
                         $dataUser->save();
-                        
+
                         $response = ['status' => true, 'message' => 'Se actualizó la contraseña con éxito'];
                     } else {
                         $response = ['status' => false, 'message' => 'No se pudo actualizar la contraseña'];
-                    }                    
-                } 
+                    }
+                }
             } else {
                 $response = ['status' => false, 'message' => 'No existe el usuario'];
             }
-            return response()->json($response); die();
+            return response()->json($response);
         } catch (\Throwable $th) {
             $response = ['status' => false, 'message' => 'Error del Servidor'];
             return response()->json($response, 500);
         }
     }
 
-    public function olvidarContrasenaUser(Request $request){
+    public function olvidarContrasenaUser(Request $request)
+    {
         try {
             $requestUser = (object) $request->forgot_password;
-            $response  = [];
+            $response = [];
 
-            $dataUser = User::where('email',$requestUser->email)->where('status','A')->first();
+            $dataUser = User::where('email', $requestUser->email)->where('status', 'A')->first();
 
             if ($dataUser) {
                 //mandar correo con nuevas credenciales
@@ -327,15 +400,15 @@ class UserController extends Controller
 
                 $encriptarPassword = Hash::make($keyCode);
 
-                $dataUser->password =  $encriptarPassword;
+                $dataUser->password = $encriptarPassword;
                 $dataUser->save();
 
                 $email = $dataUser->email;
                 $cedula = $dataUser->person->identification;
                 $nombreCompleto = ucwords($dataUser->person->first_name) . ' ' . ucwords($dataUser->person->last_name);
 
-                $this->enviarEmailForgot($email, $cedula, $keyCode, $nombreCompleto); 
-                
+                $this->enviarEmailForgot($email, $cedula, $keyCode, $nombreCompleto);
+
                 $response = ['status' => true, 'message' => 'Las Nuevas Credenciales se generaron con éxito... Por favor revise su correo'];
             } else {
                 $response = ['status' => false, 'message' => 'El correo no existe en nuestro registro'];
@@ -347,8 +420,10 @@ class UserController extends Controller
         }
     }
 
-    public function enviarEmailForgot($email,$cedula, $password, $name){
-         Mail::to($email)->send(new SendForgotPasswordMail($email, $cedula, $password, $name));
+    public function enviarEmailForgot($email, $cedula, $password, $name)
+    {
+        Mail::to($email)->send(new SendForgotPasswordMail($email, $cedula, $password, $name));
         return;
     }
+
 }

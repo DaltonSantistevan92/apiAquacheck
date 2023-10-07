@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\{User,Laboratorio,ChequeoTanque,Modulo,Grupo,DetalleChequeo,ParametrosFisicoQuimico,AnalisisMicroscopio};
 
-
 class CabChequeo extends Model
 {
     use HasFactory;
@@ -18,13 +17,16 @@ class CabChequeo extends Model
         'modulo_id',
         'grupo_id',
         'cantidad_reservada',
-        'fecha_siembra',
+        'fecha_siembra_first',
+        'fecha_siembra_second',
+        'fecha_siembra_third',
         'maduraciones',
         'chequeo',
         'observacion_recomendacion',
         'fecha',
         'hora',
         'finalizado',
+        'corrida',
         'status'
     ];
 

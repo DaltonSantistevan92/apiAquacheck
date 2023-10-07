@@ -14,10 +14,12 @@ class OrigenNauplioSeeder extends Seeder
     public function run(): void
     {
         $dataOrgienNauplio = [
-            ['nauplio' => 'texcumar','abrv' => 'tex','status'=> 'A'],
-            ['nauplio' => 'genomar','abrv' => 'gen','status'=> 'A'],
-            ['nauplio' => 'biomar','abrv' => 'bio','status'=> 'A'],
-            ['nauplio' => 'aquez','abrv' => 'aqu','status'=> 'A']
+            ['nauplio' => 'Texcumar','abrv' => 'tex','status'=> 'A'],
+            ['nauplio' => 'Genomar','abrv' => 'gen','status'=> 'A'],
+            ['nauplio' => 'Biogemar','abrv' => 'bio','status'=> 'A'],
+            ['nauplio' => 'Aquest','abrv' => 'aqst','status'=> 'A'],
+            ['nauplio' => 'Aquagent','abrv' => 'aqnt','status'=> 'A'],
+            ['nauplio' => 'Opumarsa','abrv' => 'opu','status'=> 'A']
         ];
 
         foreach ($dataOrgienNauplio as $dorigen) {

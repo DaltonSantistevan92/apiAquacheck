@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('analisis_microscopios', function (Blueprint $table) {
             $table->id();
 
-            // $table->unsignedBigInteger('chequeo_tanque_id');
-            // $table->foreign('chequeo_tanque_id')->references('id')->on('chequeo_tanques')->onDelete('cascade');
             $table->unsignedBigInteger('cab_chequeo_id');
             $table->foreign('cab_chequeo_id')->references('id')->on('cab_chequeos')->onDelete('cascade');
 
@@ -35,7 +33,6 @@ return new class extends Migration
             });
 
             $table->double('semillenas');
-            $table->string('estres',25);
 
             $table->unsignedBigInteger('musculo_id');
             $table->after('estres', function ($table){
@@ -45,6 +42,7 @@ return new class extends Migration
             $table->double('opacidad');
             $table->double('necrosis');
             $table->double('flacidez');
+            $table->string('estres',25);
             $table->double('bacteria_filamentosas');
             $table->double('protozoos');
             $table->double('hongos');

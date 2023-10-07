@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ModuloController extends Controller
 {
+
     public function listarModulo()
     {
         try {
@@ -110,4 +111,5 @@ class ModuloController extends Controller
         }
         return $response;
     }
+    
 }

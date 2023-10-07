@@ -17,8 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('cab_chequeo_id');
             $table->foreign('cab_chequeo_id')->references('id')->on('cab_chequeos')->onDelete('cascade');
             
-            $table->double('temperatura');
             $table->double('salinidad');
+            $table->double('temperatura');
             $table->double('alcalinidad');
             $table->double('ph');
         });

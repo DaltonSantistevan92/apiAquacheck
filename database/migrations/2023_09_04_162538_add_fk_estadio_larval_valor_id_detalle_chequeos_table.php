@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('detalle_chequeos', function (Blueprint $table) {
-            $table->after('dias_de_post_larva', function ($table){
+            $table->after('dias_de_cultivo', function ($table){
                 $table->foreignId('estadio_larval_valor_id')->constrained('estadio_larval_valors')->onUpdate('cascade')->onDelete('cascade');
+
             });
         });
     }

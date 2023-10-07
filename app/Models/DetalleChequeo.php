@@ -5,8 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\{CabChequeo, OrigenNauplio, Actividad, EstadioLarvalValor, Branquia, MediosCultivo} ;
-
+use App\Models\{CabChequeo, OrigenNauplio, Actividad, EstadioLarvalValor, MediosCultivo} ;
 
 class DetalleChequeo extends Model
 {
@@ -25,8 +24,8 @@ class DetalleChequeo extends Model
         'dias_de_cultivo',
         'dias_de_post_larva',
         'estadio_larval_valor_id',
-        'branquia_id',
         'pl_gr',
+        'uniformidad',
         'larvas_azuladas',
         'bact_luminiscente',
         'medios_cultivo_id'
@@ -49,9 +48,6 @@ class DetalleChequeo extends Model
         return $this->belongsTo(EstadioLarvalValor::class);
     }
 
-    public function branquia(){
-        return $this->belongsTo(Branquia::class);
-    }
 
     public function medios_cultivo(){
         return $this->belongsTo(MediosCultivo::class);

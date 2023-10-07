@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EstadioLarval;
 use App\Models\EstadioLarvalValor;
-use Illuminate\Http\Request;
 
-class EstadioLarvalValorController extends Controller
+class EstadioLarvalValorsController extends Controller
 {
+
     public function listarEstadioLarvalValor()
     {
         try {
@@ -17,9 +18,8 @@ class EstadioLarvalValorController extends Controller
                 foreach($estadioLarvalValor as $elv){
                     $aux = [
                         'estadio_larval_valor_id' => $elv->id,
-                        'nombre_estadio_valor_crecimiento' => strtoupper($elv->estadio_larval->abrv) . ' - ' . $elv->valor_crecimiento->valor
-                        //'nombre_estadio_valor_crecimiento' => ucwords($elv->estadio_larval->nombre_estadio) . ' ' . $elv->valor_crecimiento->valor 
-
+                        'nombre_estadio_valor_crecimiento' => strtoupper($elv->estadio_larval->abrv) . ' - ' . $elv->valor_crecimiento->valor 
+                        //'nombre_estadio_valor_crecimiento' => ucwords($elv->estadio_larval->nombre_estadio) . ' ' . $elv->valor_crecimiento->valor,
                     ];
                     $data[] = (object)$aux; 
                 }
@@ -36,4 +36,6 @@ class EstadioLarvalValorController extends Controller
             return response()->json($response, 500);
         }
     }
+
+
 }

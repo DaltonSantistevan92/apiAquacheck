@@ -14,6 +14,7 @@ class LipidoSeeder extends Seeder
     public function run(): void
     {
         $dataLipidos = [
+            ['valor_lipido' => '2/5','status'=> 'A'],
             ['valor_lipido' => '3/5','status'=> 'A'],
             ['valor_lipido' => '4/5','status'=> 'A'],
             ['valor_lipido' => '5/5','status'=> 'A'],

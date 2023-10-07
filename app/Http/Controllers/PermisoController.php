@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{Menu,Permiso};
+use App\Models\{Permiso,Menu};
 use Illuminate\Http\Request;
 
 class PermisoController extends Controller
 {
+    
     public function permisos($rol_id){
         try {
             $response = [];

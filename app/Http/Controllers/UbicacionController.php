@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Ubicacion;
+use Illuminate\Http\Request; // Importación de Http
 
 use Illuminate\Support\Facades\Http;
 
@@ -13,13 +14,20 @@ class UbicacionController extends Controller
         $apiKey = config('services.google.api_key');
         $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lng}&key={$apiKey}";
 
+
+        
         try {
             // Realizar la solicitud HTTP a la API de Google Maps
             $response = Http::get($url);
+            //return response()->json($response, 200); die;
+
+
 
             // Verificar si la solicitud tuvo éxito
             if ($response->successful()) {
                 $data = $response->json();
+
+
 
                 // Verificar si la respuesta contiene resultados válidos
                 if ($data['status'] === 'OK' && isset($data['results']) && count($data['results']) > 0) {
@@ -35,4 +43,5 @@ class UbicacionController extends Controller
             return response()->json(['error' => 'Error en el servidor'], 500);
         }
     }
+
 }

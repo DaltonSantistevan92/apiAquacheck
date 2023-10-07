@@ -24,13 +24,18 @@ return new class extends Migration
             $table->foreign('modulo_id')->references('id')->on('modulos')->onDelete('cascade');
 
             $table->string('cantidad_reservada',50);
-            $table->string('fecha_siembra',50);
+            // $table->string('fecha_siembra',50);
+            $table->date('fecha_siembra_first');
+            $table->date('fecha_siembra_second');
+            $table->date('fecha_siembra_third')->nullable();
+
             $table->string('maduraciones',100);
             $table->integer('chequeo')->unsigned()->default(0);
-            $table->text('observacion_recomendacion');
+            $table->text('observacion_recomendacion')->nullable();
             $table->date('fecha');
             $table->time('hora');
             $table->char('finalizado',1)->default('N');
+            $table->integer('corrida')->unsigned()->nullable();
             $table->char('status',1)->default('A');
             $table->timestamps();
         });

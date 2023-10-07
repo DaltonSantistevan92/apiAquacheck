@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class LaboratorioModuloController extends Controller
 {
+    //
     public function asignacionesLabMod(Request $request){
         try {
             $requestLabMod = (object) $request;

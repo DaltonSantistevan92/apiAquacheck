@@ -35,10 +35,9 @@ class DatabaseSeeder extends Seeder
             EstadioLarvalSeeder::class,
             ValorCrecimientoSeeder::class,
             EstadioLarvalValorSeeder::class,
-            BranquiaSeeder::class,
             MediosCultivoSeeder::class,
-            AlimentacionSeeder::class,
             DietaSeeder::class,
+            AlimentacionSeeder::class,
             LipidoSeeder::class,
             MusculosSeeder::class,
             GrupoSeeder::class

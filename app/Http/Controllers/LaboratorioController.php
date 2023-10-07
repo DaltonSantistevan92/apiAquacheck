@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class LaboratorioController extends Controller
 {
-     
+    
     public function guardarLaboratorio(Request $request){
         try {
             $requestLab = collect($request->laboratorio)->all();
@@ -35,6 +35,7 @@ class LaboratorioController extends Controller
                         $nuevoGeoLab->save();
                     }
                     $response = ['status' => true, 'message' => "El laboratorio se registró con éxito..!  Por favor registre un Módulo para el laboratorio " . ucwords($laboratorio->nombre) ];
+
                 }
             } else {
                  $response = [
@@ -81,73 +82,70 @@ class LaboratorioController extends Controller
     }
 
     public function editarLaboratorio(Request $request){
-        try {
-            $requestLaboratorio = (object) $request->laboratorio;
-            $requestGeolocalizacion_Laboratorio = (array) $request->geolocalizacion_laboratorio;
-            $response = [];
+        $requestLaboratorio = (object) $request->laboratorio;
+        $requestGeolocalizacion_Laboratorio = (array) $request->geolocalizacion_laboratorio;
+        $response = [];
 
-            $nombreExists = Laboratorio::where('nombre', $requestLaboratorio->nombre)->where('status', 'A')->exists();
+        // $validateLab = Laboratorio::where('nombre',$requestLaboratorio->nombre)->where('lugar',$requestLaboratorio->lugar)->where('status','A')->first();
 
-            $lugarExists = Laboratorio::where('lugar', $requestLaboratorio->lugar)->where('status', 'A')->exists();
+        $nombreExists = Laboratorio::where('nombre', $requestLaboratorio->nombre)->where('status', 'A')->exists();
 
-            if ($nombreExists) {
-                $response = ['status' => false,'message' => 'El nombre del laboratorio ya se encuentra registrado'];
-            } else  
-            if ($lugarExists) {
-                $response = ['status' => false,'message' => 'El lugar del laboratorio ya se encuentra registrado'];
-            }else {
+        $lugarExists = Laboratorio::where('lugar', $requestLaboratorio->lugar)->where('status', 'A')->exists();
+
+        if ($nombreExists) {
+            $response = ['status' => false,'message' => 'El nombre del laboratorio ya se encuentra registrado'];
+        } else  
+        if ($lugarExists) {
+            $response = ['status' => false,'message' => 'El lugar del laboratorio ya se encuentra registrado'];
+        }else {
+            
+            $dataLaboratorio = Laboratorio::find($requestLaboratorio->id);
+
+            if($dataLaboratorio){
+                //Editar Laboratorio
+                $dataLaboratorio->nombre = $requestLaboratorio->nombre;
+                $dataLaboratorio->lugar = $requestLaboratorio->lugar;
+                $dataLaboratorio->status = 'A';
+    
+                $dataGeolocalizacionLaboratorio = GeolocalizacionLaboratorio::where('laboratorio_id',$dataLaboratorio->id)->get();
                 
-                $dataLaboratorio = Laboratorio::find($requestLaboratorio->id);
-
-                if($dataLaboratorio){
-                    //Editar Laboratorio
-                    $dataLaboratorio->nombre = $requestLaboratorio->nombre;
-                    $dataLaboratorio->lugar = $requestLaboratorio->lugar;
-                    $dataLaboratorio->status = 'A';
-        
-                    $dataGeolocalizacionLaboratorio = GeolocalizacionLaboratorio::where('laboratorio_id',$dataLaboratorio->id)->get();
-                    
-                    if ($dataGeolocalizacionLaboratorio) {
-                        foreach($dataGeolocalizacionLaboratorio as $item){
-                            $item->delete();
-                        }
-        
-                        foreach($requestGeolocalizacion_Laboratorio as $item){
-                            $newGeolocalizacion_Laboratorio = new GeolocalizacionLaboratorio;
-                            $newGeolocalizacion_Laboratorio->laboratorio_id = $requestLaboratorio->id;
-                            $newGeolocalizacion_Laboratorio->latitud = $item['lat'];
-                            $newGeolocalizacion_Laboratorio->longitud = $item['lng'];
-                            $newGeolocalizacion_Laboratorio->save();
-                        }
-        
-                        if($dataLaboratorio->save()){
-                            $response = [
-                                'status' => true,
-                                'message' => 'El laboratorio ' . ucwords($dataLaboratorio->nombre) . ' se ha actualizado con éxito.'                    
-                            ];
-                        }else{
-                            $response = [
-                                'status' => false,
-                                'message' => 'Error. No se puede actualizar el laboratorio.'                    
-                            ];
-                        }
-                    } else {
+                if ($dataGeolocalizacionLaboratorio) {
+                    foreach($dataGeolocalizacionLaboratorio as $item){
+                        $item->delete();
+                    }
+    
+                    foreach($requestGeolocalizacion_Laboratorio as $item){
+                        $newGeolocalizacion_Laboratorio = new GeolocalizacionLaboratorio;
+                        $newGeolocalizacion_Laboratorio->laboratorio_id = $requestLaboratorio->id;
+                        $newGeolocalizacion_Laboratorio->latitud = $item['lat'];
+                        $newGeolocalizacion_Laboratorio->longitud = $item['lng'];
+                        $newGeolocalizacion_Laboratorio->save();
+                    }
+    
+                    if($dataLaboratorio->save()){
+                        $response = [
+                            'status' => true,
+                            'message' => 'El laboratorio ' . ucwords($dataLaboratorio->nombre) . ' se ha actualizado con éxito.'                    
+                        ];
+                    }else{
                         $response = [
                             'status' => false,
-                            'message' => 'Error. No exite el laboratorio en la geolocalización.'                    
+                            'message' => 'Error. No se puede actualizar el laboratorio.'                    
                         ];
                     }
-                }else{
+                } else {
                     $response = [
-                        'status' => false, 
-                        'message' => 'No existen datos para procesar.' ];
+                        'status' => false,
+                        'message' => 'Error. No exite el laboratorio en la geolocalización.'                    
+                    ];
                 }
+            }else{
+                $response = [
+                    'status' => false, 
+                    'message' => 'No existen datos para procesar.' ];
             }
-            return response()->json($response);
-        } catch (\Throwable $th) {
-            $response = [ 'status' => false, 'message' => 'Error del Servidor' ];
-            return response()->json( $response, 500 );
         }
+        return response()->json($response);
     }
 
     public function listarLaboratorio(){
